@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conway's Game of Life with Three.js</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: white;
+        }
+        #container {
+            text-align: center;
+            transform: scale(0.7);
+        }
+        canvas {
+            display: block;
+        }
+        h1 {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>EL JUEGO DE LA VIDA 2D</h1>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script>
+
+            // Definir dimensiones del mundo
+            const width = 80;
+            const height = 60;
+            const cellSize = 10;
+            const canvasWidth = width * cellSize;
+            const canvasHeight = height * cellSize;
+
+            // Crear un canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            document.getElementById('container').appendChild(canvas);
+
+            // Obtener contexto 2D del canvas
+            const ctx = canvas.getContext('2d');
+
+            // Función para dibujar la cuadrícula
+            function drawGrid() {
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 1;
+
+                // Dibujar líneas verticales
+                for (let i = 0; i <= width; i++) {
+                    const x = i * cellSize;
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvasHeight);
+                    ctx.stroke();
+                }
+
+                // Dibujar líneas horizontales
+                for (let j = 0; j <= height; j++) {
+                    const y = j * cellSize;
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvasWidth, y);
+                    ctx.stroke();
+                }
+            }
+
+            // Función para dibujar las células vivas
+            function drawCells() {
+                ctx.fillStyle = 'green';
+                for (let i = 0; i < width; i++) {
+                    for (let j = 0; j < height; j++) {
+                        if (cells[i][j]) {
+                            const x = i * cellSize;
+                            const y = j * cellSize;
+                            ctx.fillRect(x, y, cellSize, cellSize);
+                        }
+                    }
+                }
+            }
+
+            // Función para actualizar el estado de las células
+            function updateCells() {
+                const newCells = [];
+                for (let i = 0; i < width; i++) {
+                    newCells[i] = [];
+                    for (let j = 0; j < height; j++) {
+                        let neighbors = 0;
+                        for (let x = -1; x <= 1; x++) {
+                            for (let y = -1; y <= 1; y++) {
+                                if (x === 0 && y === 0) continue;
+                                const ni = (i + x + width) % width;
+                                const nj = (j + y + height) % height;
+                                neighbors += cells[ni][nj];
+                            }
+                        }
+                        newCells[i][j] = neighbors === 3 || (neighbors === 2 && cells[i][j]);
+                    }
+                }
+                for (let i = 0; i < width; i++) {
+                    for (let j = 0; j < height; j++) {
+                        cells[i][j] = newCells[i][j];
+                    }
+                }
+            }
+
+            // Función para inicializar el estado inicial de las células
+            function initializeCells() {
+                cells = [];
+                for (let i = 0; i < width; i++) {
+                    cells[i] = [];
+                    for (let j = 0; j < height; j++) {
+                        cells[i][j] = Math.random() > 0.5 ? 1 : 0;
+                    }
+                }
+            }
+
+            // Bucle principal de animación
+            function animate() {
+                updateCells();
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                drawGrid();
+                drawCells();
+                requestAnimationFrame(animate);
+            }
+
+            // Inicializar y comenzar la animación
+            initializeCells();
+            animate();
+
+        </script>
+    </div>
+</body>
+</html>
